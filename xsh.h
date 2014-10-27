@@ -8,6 +8,11 @@ struct xsh_cntxt {
     int accept_cmd;
 };
 
+struct str_llist {
+	char * str;
+	struct str_llist * next;
+};
+
 int xsh_init(struct xsh_cntxt *);
 int xsh_init(struct xsh_cntxt *);
 
