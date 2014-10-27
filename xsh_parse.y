@@ -21,10 +21,11 @@ int yylex(void);
 
 %%
 
-input:      cmd_args;
+input:      cmd_args            { print_cmd_llsit($1); }
+            ;
 
-cmd_args:   STRING cmd_args
-            | STRING
+cmd_args:   STRING cmd_args     { $$ = new_cmd_llsit($1, $2); }
+            | STRING            { $$ = new_cmd_llsit($1, NULL); }
             ;
 
 %%
