@@ -11,13 +11,16 @@
 
 //linked list of paths, command, size of array, array of parameters
 int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv){
+	
 	pid_t pid;
 	int retval;
 	struct str_llist * ptr = NULL;
+	struct stat sb;
+	struct dirent *pDirent;
+	DIR *pDir;
+	char *path = NULL;
+	
 	for(ptr = list; ptr != NULL; ptr = ptr->next){
-		struct stat sb;
-		struct dirent *pDirent;
-		DIR *pDir;
 		
 		pDir = opendir(ptr->str);
 		if(pDir == NULL){
@@ -25,9 +28,14 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 		}
 		
 		while((pDirent = readdir(pDir)) != NULL){
-			char *path = ptr->str;
+			path = ptr->str;
+			printf("path: %s\n", path);
 			if(stat(path, &sb) == 0 && sb.st_mode & S_IXUSR){
+				printf("I'm executable\n");
+				printf("directory name: %s\n", pDirent->d_name);
+				printf("cmd: %s\n", cmd);
 				if(strcmp(pDirent->d_name, cmd) == 0){
+					printf("I matched the string\n");
 					pid = fork();
 					if(pid == 0){
 						if(path[(strlen(path) - 1)] != '/'){
@@ -40,13 +48,7 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 					}else{
 						waitpid(pid, &retval, 0);
 					}
-				}else{
-					closedir (pDir);
-					break;
 				}
-			}else{
-				closedir (pDir);
-				break;
 			}
 		closedir (pDir);
 		}
@@ -59,10 +61,11 @@ int main(void){
 	struct str_llist* list = (struct str_llist*) malloc(sizeof(struct str_llist));
 	
 	list->str = teststr;
+	list->next = NULL;
 	
 	char * cmd = "hello.sh";
 	
-	if(xsh_execute_cmd(list, cmd, 0, NULL) == 0){
+	if(xsh_execute_cmd(list, cmd, 0, NULL) == 1){
 		printf("Great success!\n");
 	}
 	
