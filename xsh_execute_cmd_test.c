@@ -6,8 +6,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <stdio.h>
 #include <stdlib.h>
 
+//linked list of paths, command, size of array, array of parameters
 int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv){
 	
 	pid_t pid;
@@ -49,5 +51,19 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 		}
 		closedir(pDir);
 	}
+	return 0;
+}
+
+int main(void){
+	char *teststr = "/mnt/hgfs/XShell";
+	struct str_llist* list = (struct str_llist*) malloc(sizeof(struct str_llist));
+	
+	list->str = teststr;
+	list->next = NULL;
+	
+	char * cmd = "hello.sh";
+	
+	xsh_execute_cmd(list, cmd, 0, NULL);
+	
 	return 0;
 }
