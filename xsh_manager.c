@@ -1,4 +1,5 @@
 #include <xsh.h>
+#include <xsh_parse.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +22,8 @@ int xsh_init(struct xsh_cntxt *ctx) {
     
     ctx->accept_cmd = 1;
     ctx->input = stdin;
+    
+    yyin = ctx->input;
     
     signal(SIGINT, signal_handler);
     
