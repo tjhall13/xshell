@@ -8,6 +8,8 @@ struct xsh_cntxt {
     int accept_cmd;
 };
 
+extern FILE *yyin;
+
 int xsh_init(struct xsh_cntxt *);
 int xsh_init(struct xsh_cntxt *);
 

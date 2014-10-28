@@ -8,15 +8,17 @@ int yyerror(char *);
 
 %option noyywrap
 
-character   [a-zA-Z_]
+char        [a-zA-Z]
 digit       [0-9]
 
-string      character{character|digit}+
+string      {char}({char}|{digit})*
 
 %%
 
-string  { yylval.str = strdup(yytext); return STRING; }
+{string}  { yylval.str = strdup(yytext); return STRING; }
 
-[ \t]*  { }
+[ ]+  { }
+
+[\n\c]  { return NEWLINE; }
 
 .       { yyerror("unknown char"); }
