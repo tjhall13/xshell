@@ -18,6 +18,7 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, bool background, char *
 	DIR *pDir;
 	char *path = NULL;
 	char *buf = NULL;
+	int executed = 0;
 	
 	for(ptr = list; ptr != NULL; ptr = ptr->next){
 		
@@ -32,29 +33,34 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, bool background, char *
 		
 		while((pDirent = readdir(pDir)) != NULL){
 			if(strcmp(pDirent->d_name, cmd) == 0){
+				strcpy(buf, path);
+				if(path[(strlen(path) - 1)] != '/'){
+					strcat(buf, "/");
+					strcat(buf, cmd);
+				}else{
+					strcat(buf, cmd);
+				}
 				if(stat(path, &sb) == 0 && sb.st_mode & S_IXUSR){
+					executed = 1;
 					pid = fork();
 					if(pid == 0){
-						strcpy(buf, path);
-						if(path[(strlen(path) - 1)] != '/'){
-							strcat(buf, "/");
-							strcat(buf, cmd);
-						}else{
-							strcat(buf, cmd);
-						}
 						execv(buf, argv);
 					}else{
 						if(background == FALSE){
 							waitpid(pid, &retval, 0);
 						}
 					}
-					break;
 				}
+				break;
 			}
 		}
 		closedir(pDir);
-		
 		free(buf);
+		}
+	
+	if(executable == 0){
+		printf("Unable to execute");
 	}
+	
 	return 0;
 }

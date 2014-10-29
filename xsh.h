@@ -8,9 +8,9 @@ struct xsh_cntxt {
     int accept_cmd;
 };
 
-typedef enumeration{
-	FALSE;
-	TRUE;
+typedef enum{
+	FALSE,
+	TRUE
 } bool;
 
 struct str_llist {
