@@ -15,7 +15,7 @@ xsh: $(OBJS)
 xsh_parse.c:
 	bison -o $@ xsh_parse.y
 
-xsh_lex.c: xsh_lex.lex
+xsh_lex.c: xsh_lex.l
 	flex -o $@ $^
 
 clean:
