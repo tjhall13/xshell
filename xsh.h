@@ -3,6 +3,12 @@
 
 #include <stdio.h>
 
+typedef enum {
+    FALSE,
+    TRUE
+} boolean;
+
+
 struct xsh_cntxt {
     FILE *input;
     int accept_cmd;

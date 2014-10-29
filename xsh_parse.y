@@ -5,15 +5,18 @@
 
 extern FILE *yyin;
 
-int yyerror(char *s);
+int yyerror(char const * s);
 int yylex(void);
 
 %}
 
 %defines "xsh_parse.h"
 
+%define parse.error verbose
+
 %union {
     char *      str;
+    char        cntrl;
     int         ival;
     double      dval;
     
@@ -23,22 +26,26 @@ int yylex(void);
 %start input
 
 %token <str>    STRING
+%token <dval>   DOUBLE
+%token <ival>   INTEGER
+%token AMPER
 %token NEWLINE
-%type  <cmd_arg_list> cmd_args
+%type  <cmd_arg_list> cmd
 
 %%
 
-input:      cmd_args NEWLINE    { print_cmd_llist($1); }
-            | NEWLINE
+input:      cmd NEWLINE         { print_cmd_llist($1); YYACCEPT; }
+            | cmd AMPER NEWLINE { printf("bg:\n"); print_cmd_llist($1); YYACCEPT; }
+            | NEWLINE           { YYACCEPT; }
             ;
 
-cmd_args:   STRING cmd_args     { $$ = new_cmd_llist($1, $2); }
+cmd:        STRING cmd          { $$ = new_cmd_llist($1, $2); }
             | STRING            { $$ = new_cmd_llist($1, NULL); }
             ;
 
 %%
 
-int yyerror(char *str) {
+int yyerror(char const * str) {
     fprintf(stderr, "%s\n", str);
     return 0;
 }
