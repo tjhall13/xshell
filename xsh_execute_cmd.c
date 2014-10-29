@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv){
+int xsh_execute_cmd(struct str_llist * list, char * cmd, bool background, char ** argv){
 	
 	pid_t pid;
 	int retval;
@@ -17,7 +17,7 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 	struct dirent *pDirent;
 	DIR *pDir;
 	char *path = NULL;
-	char buff[50];
+	char *buf = NULL;
 	
 	for(ptr = list; ptr != NULL; ptr = ptr->next){
 		
@@ -26,28 +26,35 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 			return -1;
 		}
 		
+		path = ptr->str;
+		
+		buf = (char *) malloc(strlen(path) + strlen(cmd) + 2);
+		
 		while((pDirent = readdir(pDir)) != NULL){
-			path = ptr->str;
-			if(stat(path, &sb) == 0 && sb.st_mode & S_IXUSR){
-				if(strcmp(pDirent->d_name, cmd) == 0){
+			if(strcmp(pDirent->d_name, cmd) == 0){
+				if(stat(path, &sb) == 0 && sb.st_mode & S_IXUSR){
 					pid = fork();
 					if(pid == 0){
-						strcpy(buff, path);
+						strcpy(buf, path);
 						if(path[(strlen(path) - 1)] != '/'){
-							strcat(buff, "/");
-							strcat(buff, cmd);
+							strcat(buf, "/");
+							strcat(buf, cmd);
 						}else{
-							strcat(buff, cmd);
+							strcat(buf, cmd);
 						}
-						execv(buff, argv);
+						execv(buf, argv);
 					}else{
-						waitpid(pid, &retval, 0);
+						if(background == FALSE){
+							waitpid(pid, &retval, 0);
+						}
 					}
 					break;
 				}
 			}
 		}
 		closedir(pDir);
+		
+		free(buf);
 	}
 	return 0;
 }

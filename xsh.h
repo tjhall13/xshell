@@ -8,6 +8,11 @@ struct xsh_cntxt {
     int accept_cmd;
 };
 
+typedef enumeration{
+	FALSE;
+	TRUE;
+} bool;
+
 struct str_llist {
 	char * str;
 	struct str_llist * next;
