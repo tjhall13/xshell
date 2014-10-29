@@ -30,8 +30,8 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 		
 		while((pDirent = readdir(pDir)) != NULL){
 			path = ptr->str;
-			if(stat(path, &sb) == 0 && sb.st_mode & S_IXUSR){
-				if(strcmp(pDirent->d_name, cmd) == 0){
+			if(strcmp(pDirent->d_name, cmd) == 0){
+				if(stat(path, &sb) == 0 && sb.st_mode & S_IXUSR){
 					pid = fork();
 					if(pid == 0){
 						strcpy(buff, path);
@@ -46,6 +46,8 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 						waitpid(pid, &retval, 0);
 					}
 					break;
+				}else{
+					printf("Unable to execute\n");
 				}
 			}
 		}
@@ -55,7 +57,7 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 }
 
 int main(void){
-	char *teststr = "/mnt/hgfs/XShell";
+	char *teststr = "jkenney/xshell";
 	struct str_llist* list = (struct str_llist*) malloc(sizeof(struct str_llist));
 	
 	list->str = teststr;
