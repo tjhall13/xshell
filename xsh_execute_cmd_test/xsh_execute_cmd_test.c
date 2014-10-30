@@ -40,7 +40,6 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 				if(path[(strlen(path) - 1)] != '/'){
 					strcat(buf, "/");
 					strcat(buf, cmd);
-					printf("%s\n", buf);
 				}else{
 					strcat(buf, cmd);
 				}
