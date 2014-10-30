@@ -47,7 +47,7 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 						
 					pid = fork();
 					if(pid == 0){
-						xsh_create_process_entry(prc);
+						xsh_create_process_entry(*prc);
 						execv(buf, argv);
 					}else{
 						if(background == FALSE){
