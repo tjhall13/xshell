@@ -8,6 +8,11 @@ struct xsh_cntxt {
     int accept_cmd;
 };
 
+typedef enum {
+	FALSE,
+	TRUE
+} boolean;
+
 int xsh_init(struct xsh_cntxt *);
 int xsh_init(struct xsh_cntxt *);
 

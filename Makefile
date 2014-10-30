@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -I .
 LD = gcc
 
-OBJS = xsh_parse.o xsh_main.o xsh_cmd.o xsh_manager.o xsh_lex.o
+OBJS = xsh_parse.o xsh_main.o xsh_cmd.o xsh_manager.o xsh_lex.o xsh_process.o
 
 all: xsh
 
@@ -15,7 +15,7 @@ xsh: $(OBJS)
 xsh_parse.c:
 	bison -o $@ xsh_parse.y
 
-xsh_lex.c: xsh_lex.lex
+xsh_lex.c: xsh_lex.l
 	flex -o $@ $^
 
 clean:
