@@ -41,11 +41,12 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 				}
 				if(stat(path, &sb) == 0 && sb.st_mode & S_IXUSR){
 				
+					pid = fork();
+					
 					xsh_process_entry prc;
 						prc.pid_t = getpid;
 						prc.fg = !background;
 						
-					pid = fork();
 					if(pid == 0){
 						xsh_create_process_entry(*prc);
 						execv(buf, argv);
