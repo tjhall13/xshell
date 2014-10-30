@@ -19,6 +19,5 @@ typedef enum {
 } boolean;
 
 int xsh_init(struct xsh_cntxt *);
-int xsh_init(struct xsh_cntxt *);
 
 #endif
