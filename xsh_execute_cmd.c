@@ -7,10 +7,11 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <xsh_process.h>
 
 boolean errOpeningDir = FALSE;
 boolean errFindingCmd = FALSE;
-boolean errExec = FALSE
+boolean errExec = FALSE;
 
 int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, char ** argv){
 	
@@ -46,11 +47,11 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 				pid = fork();
 					
 				xsh_process_entry prc;
-					prc.pid = getpid;
+					prc.pid = getpid();
 					prc.fg = !background;
 						
 				if(pid == 0){
-					xsh_create_process_entry(prc);
+					xsh_create_process_entry(&prc);
 					execv(buf, argv);
 					exit(-1);
 				}else{
@@ -59,12 +60,12 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 						if(WEXITSTATUS(retval) == 255){
 							errExec = TRUE;
 						}
-						xsh_delete_process_entry(getpid);
+						xsh_delete_process_entry(getpid());
 					}
 				}
 				break;
 			}else{
-				errFindingCmd = TRUE
+				errFindingCmd = TRUE;
 			}
 		}
 		closedir(pDir);
