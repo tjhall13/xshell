@@ -8,25 +8,25 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-int can_errno;
+boolean errOpeningDir = FALSE;
+boolean errFindingCmd = FALSE;
+boolean errExec = FALSE
 
 int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, char ** argv){
 	
 	pid_t pid;
 	int retval;
 	struct str_llist * ptr = NULL;
-	struct stat sb;
 	struct dirent *pDirent;
 	DIR *pDir;
 	char *path = NULL;
 	char *buf = NULL;
-	can_errno = 0;
 	
 	for(ptr = list; ptr != NULL; ptr = ptr->next){
 		path = ptr->str;
 		pDir = opendir(path);
 		if(pDir == NULL){
-			can_errno = -1; //unable to open the directory
+			errOpeningDir = TRUE;
 			continue;
 		}
 		
@@ -34,6 +34,7 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 		
 		while((pDirent = readdir(pDir)) != NULL){
 			if(strcmp(pDirent->d_name, cmd) == 0){
+				errFindingCmd = FALSE;
 				strcpy(buf, path);
 				if(path[(strlen(path) - 1)] != '/'){
 					strcat(buf, "/");
@@ -41,37 +42,40 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 				}else{
 					strcat(buf, cmd);
 				}
-				if(stat(path, &sb) == 0 && sb.st_mode & S_IXUSR){
-				
-					pid = fork();
+	
+				pid = fork();
 					
-					xsh_process_entry prc;
-						prc.pid = getpid;
-						prc.fg = !background;
+				xsh_process_entry prc;
+					prc.pid = getpid;
+					prc.fg = !background;
 						
-					if(pid == 0){
-						xsh_create_process_entry(prc);
-						execv(buf, argv);
-						exit(-1);
-					}else{
-						if(background == FALSE){
-							waitpid(pid, &retval, 0);
-							xsh_delete_process_entry(getpid);
-						}
-					}
+				if(pid == 0){
+					xsh_create_process_entry(prc);
+					execv(buf, argv);
+					exit(-1);
 				}else{
-					can_errno = -3; //doesn't have execution permissions
+					if(background == FALSE){
+						waitpid(pid, &retval, 0);
+						if(WEXITSTATUS(retval) == 255){
+							errExec = TRUE;
+						}
+						xsh_delete_process_entry(getpid);
+					}
 				}
 				break;
 			}else{
-				can_errno = -2; //unknown command with none matching
+				errFindingCmd = TRUE
 			}
 		}
 		closedir(pDir);
 		free(buf);
 	}
-	if(can_errno < 0){
+	if(errOpeningDir){
 		return -1;
+	}else if(errFindingCmd){
+		return -2;
+	}else if(errExec){
+		return -3;
 	}else{
 		return 0;
 	}
