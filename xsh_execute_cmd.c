@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-int xsh_execute_cmd(struct str_llist * list, char * cmd, bool background, char ** argv){
+int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, char ** argv){
 	
 	pid_t pid;
 	int retval;
@@ -18,7 +18,6 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, bool background, char *
 	DIR *pDir;
 	char *path = NULL;
 	char *buf = NULL;
-	int executed = 0;
 	
 	for(ptr = list; ptr != NULL; ptr = ptr->next){
 		
@@ -41,7 +40,6 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, bool background, char *
 					strcat(buf, cmd);
 				}
 				if(stat(path, &sb) == 0 && sb.st_mode & S_IXUSR){
-					executed = 1;
 					pid = fork();
 					if(pid == 0){
 						execv(buf, argv);
@@ -56,10 +54,6 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, bool background, char *
 		}
 		closedir(pDir);
 		free(buf);
-		}
-	
-	if(executable == 0){
-		printf("Unable to execute");
 	}
 	
 	return 0;
