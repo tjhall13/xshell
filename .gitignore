@@ -1,0 +1,6 @@
+xsh
+*.o
+*~
+xsh_lex.c
+xsh_parse.c
+xsh_parse.h
