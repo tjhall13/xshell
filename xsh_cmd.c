@@ -113,3 +113,21 @@ xsh_process_entry* xsh_retrieve_process_entry_by_id(int id) {
 		return NULL;
 	}
 }
+
+xsh_process_entry* xsh_retrieve_foreground_process() {
+	boolean exists = FALSE;
+	xsh_process_table* current = process_table;
+	xsh_process_entry* process_to_retrieve;
+	while(current->next != NULL) {
+		if(current->entry.foreground) {
+			process_to_retrieve = &current->entry;
+			exists = TRUE;
+			break;
+		}
+	}
+	if(exists) {
+		return process_to_retrieve;
+	} else {
+		return NULL;
+	}
+}

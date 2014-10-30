@@ -33,5 +33,6 @@ boolean xsh_delete_process_entry(pid_t id);
 boolean xsh_update_process_entry(pid_t id, xsh_process_entry *prc);
 xsh_process_entry* xsh_retrieve_process_entry_by_pid(pid_t id);
 xsh_process_entry* xsh_retrieve_process_entry_by_id(int id);
+xsh_process_entry* xsh_retrieve_foreground_process();
 
 #endif
