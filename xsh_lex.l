@@ -13,12 +13,14 @@ amper       [&]
 char        [\.\/a-zA-Z\-_]
 digit       [0-9]
 
-double      {digit}*\.{digit}+
+double      ({digit}*\.{digit}+)|({digit}+\.{digit}*)
 integer     {digit}+
 
-string      ({char}|{digit})+
+string      ({digit}|{char})*{char}({digit}|{char})*
 
-literal     \".*\"
+dquote_str   \".*\"
+squote_str   \'.*\'
+
 
 variable    \${char}+
 
@@ -28,7 +30,9 @@ comment     ^\#.*
 
 {string}    { yylval.str = strdup(yytext); return STRING; }
 
-{literal}   { yylval.str = strdup(yytext); return STRING; }
+{dquote_str} { yylval.str = strdup(yytext); return STRING; }
+
+{squote_str} { yylval.str = strdup(yytext); return STRING; }
 
 {amper}     { yylval.cntrl = '&'; return AMPER; }
 

@@ -15,7 +15,8 @@ static boolean xsh_is_internal(char *cmd) {
     if(
         strcmp(cmd, "exit") == 0 ||
         strcmp(cmd, "fg") == 0   ||
-        strcmp(cmd, "bg") == 0
+        strcmp(cmd, "bg") == 0   ||
+        strcmp(cmd, "jobs") == 0
     ) {
         return TRUE;
     } else {
@@ -26,7 +27,15 @@ static boolean xsh_is_internal(char *cmd) {
 static int xsh_execute_internal(char *cmd, char *argv[]) {
     if(strcmp(cmd, "exit") == 0) {
         xsh_exit();
+    } else if(strcmp(cmd, "jobs") == 0) {
+        xsh_process_table *ptr = process_table;
+        xsh_process_entry *entry;
+        while(ptr != NULL) {
+            printf("[%d]: %d %d", ptr->entry.entry_id, ptr->entry.pid, ptr->entry.state);
+            ptr = ptr->next;
+        }
     }
+    return 0;
 }
 
 static int xsh_execute_external(struct str_llist * list, char *cmd, boolean fg, char *argv[]) {
@@ -56,13 +65,12 @@ static int xsh_execute_external(struct str_llist * list, char *cmd, boolean fg, 
 		        buf = strcat(buf, cmd);
 			    if(stat(buf, &sb) == 0 && sb.st_mode & S_IXUSR) {
 					pid = fork();
+			        xsh_process_entry prc;
+			        prc.fg = fg;
+			        prc.pid = getpid();
+			        
+			        xsh_create_process_entry(&prc);
 					if(pid <= 0) {
-					    xsh_process_entry prc;
-					    prc.fg = fg;
-					    prc.pid = getpid();
-					    
-					    xsh_create_process_entry(&prc);
-					    
 						execv(buf, argv);
 						exit(0);
 					} else {

@@ -12,7 +12,10 @@ static struct xsh_cntxt *sh_ctx;
 static void signal_handler(int signum) {
     switch(signum) {
     case SIGINT:
-        sh_ctx->accept_cmd = 0;
+        break;
+    case SIGSTOP:
+        break;
+    case SIGTSTP:
         break;
     default:
         break;
@@ -43,6 +46,8 @@ int xsh_init(struct xsh_cntxt *ctx) {
     yyin = ctx->input;
     
     signal(SIGINT, signal_handler);
+    signal(SIGSTOP, signal_handler);
+    signal(SIGTSTP, signal_handler);
     
     gbl_PATH = parse_path();
     
