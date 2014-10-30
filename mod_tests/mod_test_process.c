@@ -36,7 +36,7 @@ xsh_process_entry* b = xsh_retrieve_process_entry_by_id(1);
 xsh_process_entry* c = xsh_retrieve_process_entry_by_id(2);
 xsh_process_entry* d = xsh_retrieve_process_entry_by_id(3);
 
-
+printf("Get by ID:\n");
 printf("%-10s%-10s%-10s%-10s\n","entry_id","pid","state","fg");
 if(a != NULL) {printf("%-10d%-10d%-10d%-10d\n",a->entry_id,a->pid,a->state,a->fg);}
 if(b != NULL) {printf("%-10d%-10d%-10d%-10d\n",b->entry_id,b->pid,b->state,b->fg);}
@@ -45,6 +45,7 @@ if(d != NULL) {printf("%-10d%-10d%-10d%-10d\n",d->entry_id,d->pid,d->state,d->fg
 
 printf("\n\n");
 
+printf("Get by PID:\n");
 xsh_process_entry* h = xsh_retrieve_process_entry_by_pid(2256);
 xsh_process_entry* i = xsh_retrieve_process_entry_by_pid(1543);
 xsh_process_entry* j = xsh_retrieve_process_entry_by_pid(1983);
@@ -52,12 +53,23 @@ xsh_process_entry* k = xsh_retrieve_process_entry_by_pid(1243);
 
 
 printf("%-10s%-10s%-10s%-10s\n","entry_id","pid","state","fg");
-if(h != NULL) {printf("%-10d%-10d%-10d%-10d\n",h->entry_id,h->pid,h->state,h->fg);}
-if(i != NULL) {printf("%-10d%-10d%-10d%-10d\n",i->entry_id,i->pid,i->state,i->fg);}
-if(j != NULL) {printf("%-10d%-10d%-10d%-10d\n",j->entry_id,j->pid,j->state,j->fg);}
-if(k != NULL) {printf("%-10d%-10d%-10d%-10d\n",k->entry_id,k->pid,k->state,k->fg);}
+int i;
+xsh_process_table* t = process_table;
+for(i=0; i<4; i++) {
+if(t->entry != NULL) {printf("%-10d%-10d%-10d%-10d\n",t->entry.entry_id,t->entry.pid,t->entry.state,t->entry.fg);}
+t = t->next;
+}
 
+printf("\n\n");
 
+printf("Get from process table:\n");
+printf("%-10s%-10s%-10s%-10s\n","entry_id","pid","state","fg");
+if(a != NULL) {printf("%-10d%-10d%-10d%-10d\n",a->entry_id,a->pid,a->state,a->fg);}
+if(b != NULL) {printf("%-10d%-10d%-10d%-10d\n",b->entry_id,b->pid,b->state,b->fg);}
+if(c != NULL) {printf("%-10d%-10d%-10d%-10d\n",c->entry_id,c->pid,c->state,c->fg);}
+if(d != NULL) {printf("%-10d%-10d%-10d%-10d\n",d->entry_id,d->pid,d->state,d->fg);}
+
+printf("\n\n");
 
 if(xsh_update_process_entry(2256, STOPPED, FALSE)) {printf("%-10d%-10d%-10d%-10d\n",h->entry_id,h->pid,h->state,h->fg);}
 
