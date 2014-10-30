@@ -4,4 +4,8 @@ xsh
 xsh_lex.c
 xsh_parse.c
 xsh_parse.h
+<<<<<<< HEAD
 mod_test_crud.c
+mod_test_xsh_cmd.c
+=======
+>>>>>>> FETCH_HEAD
