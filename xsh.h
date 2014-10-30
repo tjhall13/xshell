@@ -8,7 +8,6 @@ typedef enum {
     TRUE
 } boolean;
 
-
 struct xsh_cntxt {
     FILE *input;
     int accept_cmd;

@@ -5,13 +5,17 @@
 
 int xsh_interpret(struct xsh_cntxt *);
 
-struct cmd_llist {
+struct str_llist {
     char *str;
-    struct cmd_llist *next;
+    struct str_llist *next;
 };
 
-struct cmd_llist *new_cmd_llist(char *, struct cmd_llist *);
+extern struct str_llist *gbl_PATH;
 
-void print_cmd_llist(struct cmd_llist *);
+struct str_llist *new_str_llist(char *, struct str_llist *);
+
+void print_str_llist(struct str_llist *);
+
+int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean bg, char ** argv);
 
 #endif

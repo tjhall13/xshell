@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -I .
 LD = gcc
 
-OBJS = xsh_parse.o xsh_lex.o xsh_main.o xsh_cmd.o xsh_manager.o
+OBJS = xsh_parse.o xsh_lex.o xsh_main.o xsh_cmd.o xsh_manager.o xsh_execute_cmd.o
 
 all: xsh
 

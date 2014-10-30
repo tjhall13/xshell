@@ -9,8 +9,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//linked list of paths, command, size of array, array of parameters
-int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv){
+static boolean xsh_is_internal(char *cmd) {
+    if(
+        strcmp(cmd, "exit") == 0 ||
+        strcmp(cmd, "fg") == 0   ||
+        strcmp(cmd, "bg") == 0
+    ) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+static int xsh_execute_internal(char *cmd, char *argv[]) {
+    if(strcmp(cmd, "exit") == 0) {
+        xsh_exit();
+    }
+}
+
+static int xsh_execute_external(struct str_llist * list, char *cmd, boolean fg, char *argv[]) {
 	pid_t pid;
 	int retval;
 	struct str_llist * ptr = NULL;
@@ -41,7 +58,9 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 						execv(buf, argv);
 						exit(0);
 					} else {
-						waitpid(pid, &retval, 0);
+					    if(fg) {
+    						waitpid(pid, &retval, 0);
+    				    }
 					}
 				}else{
 					closedir (pDir);
@@ -55,18 +74,11 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, int argc, char ** argv)
 	return 0;
 }
 
-int main(void){
-	char *teststr = "/home/trevor/classwork/software/xshell";
-	struct str_llist* list = (struct str_llist*) malloc(sizeof(struct str_llist));
-	
-	list->str = teststr;
-	list->next = NULL;
-	
-	char * cmd = "hello";
-	
-	if(xsh_execute_cmd(list, cmd, 0, NULL) != 0) {
-	    printf("Failed\n");
-	}
-	
-	return 0;
+//linked list of paths, command, size of array, array of parameters
+int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean fg, char ** argv) {
+    if(xsh_is_internal(cmd)) {
+        return xsh_execute_internal(cmd, argv);
+    } else {
+        return xsh_execute_external(list, cmd, fg, argv);
+    }
 }

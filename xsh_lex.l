@@ -9,7 +9,7 @@ int yyerror(char const *);
 %option noyywrap
 
 amper       [&]
-char        [a-zA-Z_]
+char        [a-zA-Z\-_]
 digit       [0-9]
 
 double      {digit}*.{digit}+

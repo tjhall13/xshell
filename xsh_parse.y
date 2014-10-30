@@ -2,6 +2,7 @@
 
 #include <xsh.h>
 #include <xsh_cmd.h>
+#include <stdlib.h>
 
 extern FILE *yyin;
 
@@ -20,7 +21,7 @@ int yylex(void);
     int         ival;
     double      dval;
     
-    struct cmd_llist * cmd_arg_list;
+    struct str_llist * cmd_arg_list;
 }
 
 %start input
@@ -30,18 +31,23 @@ int yylex(void);
 %token <ival>   INTEGER
 %token AMPER
 %token NEWLINE
-%type  <cmd_arg_list> cmd
+%type  <cmd_arg_list> cmd_args
 
 %%
 
-input:      cmd NEWLINE         { print_cmd_llist($1); YYACCEPT; }
-            | cmd AMPER NEWLINE { printf("bg:\n"); print_cmd_llist($1); YYACCEPT; }
-            | NEWLINE           { YYACCEPT; }
-            ;
+input:    cmd input
+          | cmd
+          ;
 
-cmd:        STRING cmd          { $$ = new_cmd_llist($1, $2); }
-            | STRING            { $$ = new_cmd_llist($1, NULL); }
-            ;
+cmd:      cmd_args NEWLINE
+                            { exec_str_llist(TRUE, $1); }
+          | cmd_args AMPER NEWLINE
+                            { exec_str_llist(FALSE, $1); }
+          ;
+
+cmd_args: STRING cmd_args   { $$ = new_str_llist($1, $2); }
+          | STRING          { $$ = new_str_llist($1, NULL); }
+          ;
 
 %%
 
