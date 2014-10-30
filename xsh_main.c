@@ -2,6 +2,8 @@
 #include <xsh.h>
 #include <xsh_cmd.h>
 
+//this is a different comment
+
 struct xsh_cntxt sh_ctx;
 
 int main(int argc, char **argv) {
