@@ -101,7 +101,7 @@ xsh_process_entry* xsh_retrieve_process_entry_by_id(int id) {
 	xsh_process_table* current = process_table;
 	xsh_process_entry* process_to_retrieve;
 	while(current->next != NULL) {
-		if(current->entry.id == id) {
+		if(current->entry.entry_id == id) {
 			process_to_retrieve = &current->entry;
 			exists = TRUE;
 			break;
