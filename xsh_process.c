@@ -1,5 +1,4 @@
 #include <xsh.h>
-#include <xsh_parse.h>
 #include <xsh_process.h>
 #include <stdlib.h>
 
@@ -83,6 +82,7 @@ xsh_process_entry* xsh_retrieve_process_entry_by_pid(pid_t id) {
 			exists = TRUE;
 			break;
 		}
+		current = current->next;
 	}
 	if(exists) {
 		return process_to_retrieve;
@@ -96,11 +96,13 @@ xsh_process_entry* xsh_retrieve_process_entry_by_id(int id) {
 	xsh_process_table* current = process_table;
 	xsh_process_entry* process_to_retrieve;
 	while(current->next != NULL) {
+		printf("%d\n",current->next->entry.entry_id);
 		if(current->entry.entry_id == id) {
 			process_to_retrieve = &current->entry;
 			exists = TRUE;
 			break;
 		}
+		current = current->next;
 	}
 	if(exists) {
 		return process_to_retrieve;
