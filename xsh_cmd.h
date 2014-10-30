@@ -5,7 +5,7 @@
 #include <sys/types.h>
 
 int xsh_interpret(struct xsh_cntxt *);
-int xsh_execute_cmd(struct str_llist *, char *, int, char **);
+int xsh_execute_cmd(struct str_llist *, char *, boolean, char **);
 
 typedef enum {
 	RUNNING,
