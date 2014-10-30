@@ -11,13 +11,13 @@
 
 boolean error1 = FALSE;
 boolean error2 = FALSE;
+boolean error3 = FALSE;
 
 int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, char ** argv){
 	
 	pid_t pid;
 	int retval;
 	struct str_llist * ptr = NULL;
-	struct stat sb;
 	struct dirent *pDirent;
 	DIR *pDir;
 	char *path = NULL;
@@ -40,6 +40,7 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 				if(path[(strlen(path) - 1)] != '/'){
 					strcat(buf, "/");
 					strcat(buf, cmd);
+					printf("%s\n", buf);
 				}else{
 					strcat(buf, cmd);
 				}
@@ -51,6 +52,9 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 				}else{
 					if(background == FALSE){
 						waitpid(pid, &retval, 0);
+						if(WEXITSTATUS(retval) == 255){
+							error3 = TRUE;
+						}
 					}
 				}
 				break;
@@ -65,6 +69,8 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 		return -1;
 	}else if(error2){
 		return -2;
+	}else if(error3){
+		return -3;
 	}else{
 		return 0;
 	}
@@ -125,5 +131,6 @@ int main(void){
 	printf("Finished Test 2\n\n");
 	test3();
 	printf("Finished Test 3\n\n");
+
 	return 0;
 }
