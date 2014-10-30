@@ -10,13 +10,15 @@ int yyerror(char const *);
 %option noyywrap
 
 amper       [&]
-char        [a-zA-Z\-_]
+char        [\.\/a-zA-Z\-_]
 digit       [0-9]
 
 double      {digit}*\.{digit}+
 integer     {digit}+
 
-string      {char}({char}|{digit})*
+string      ({char}|{digit})+
+
+literal     \".*\"
 
 variable    \${char}+
 
@@ -25,6 +27,8 @@ comment     ^\#.*
 %%
 
 {string}    { yylval.str = strdup(yytext); return STRING; }
+
+{literal}   { yylval.str = strdup(yytext); return STRING; }
 
 {amper}     { yylval.cntrl = '&'; return AMPER; }
 
