@@ -1,6 +1,8 @@
 #include <xsh.h>
 #include <xsh_cmd.h>
 #include <xsh_parse.h>
+#include <xsh_cmd.h>
+#include <stdlib.h>
 
 #include <stdlib.h>
 #include <stdio.h>

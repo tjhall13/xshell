@@ -10,6 +10,8 @@ struct str_llist {
     struct str_llist *next;
 };
 
+
+int xsh_execute_cmd(struct str_llist *, char *, boolean, char **);
 extern struct str_llist *gbl_PATH;
 
 struct str_llist *new_str_llist(char *, struct str_llist *);

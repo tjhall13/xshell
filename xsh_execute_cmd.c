@@ -1,5 +1,7 @@
 #include <xsh.h>
 #include <xsh_cmd.h>
+#include <xsh_process.h>
+
 #include <dirent.h>
 #include <string.h>
 #include <sys/types.h>
@@ -55,11 +57,18 @@ static int xsh_execute_external(struct str_llist * list, char *cmd, boolean fg, 
 			    if(stat(buf, &sb) == 0 && sb.st_mode & S_IXUSR) {
 					pid = fork();
 					if(pid <= 0) {
+					    xsh_process_entry prc;
+					    prc.fg = fg;
+					    prc.pid = getpid();
+					    
+					    xsh_create_process_entry(&prc);
+					    
 						execv(buf, argv);
 						exit(0);
 					} else {
 					    if(fg) {
     						waitpid(pid, &retval, 0);
+    						xsh_delete_process_entry(pid);
     				    }
 					}
 				}else{
