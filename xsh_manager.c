@@ -22,12 +22,14 @@ static void signal_handler(int signum) {
 static struct str_llist *parse_path() {
     struct str_llist *list = NULL;
     
-    char *path = getenv("PATH");
+    char *path = strdup(getenv("PATH"));
     char *ptr = strtok(path, ":");
     while(ptr != NULL) {
         list = new_str_llist(strdup(ptr), list);
         ptr = strtok(NULL, ":");
     }
+    
+    free(path);
     
     return list;
 }
@@ -47,7 +49,7 @@ int xsh_init(struct xsh_cntxt *ctx) {
     return 0;
 }
 
-int xsh_exit(struct xsh_cntxt *ctx) {
-    
+int xsh_exit() {
+    printf("exit\n");
     exit(0);
 }

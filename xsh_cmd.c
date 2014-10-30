@@ -44,6 +44,10 @@ int size_str_llist(struct str_llist *list) {
 }
 
 void exec_str_llist(boolean fg, struct str_llist *list) {
+    if(list == NULL) {
+        PROMPT();
+        return;
+    }
     int size = size_str_llist(list);
     char *argv[size + 1];
     

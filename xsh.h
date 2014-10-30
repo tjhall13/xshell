@@ -16,6 +16,16 @@ struct xsh_cntxt {
 extern FILE *yyin;
 
 int xsh_init(struct xsh_cntxt *);
-int xsh_init(struct xsh_cntxt *);
+int xsh_init();
+
+struct double_val {
+    double dval;
+    char *str;
+};
+
+struct int_val {
+    int ival;
+    char *str;
+};
 
 #endif
