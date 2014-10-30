@@ -28,7 +28,7 @@ extern int entry_id_count;
 
 boolean xsh_create_process_entry(xsh_process_entry *prc);
 boolean xsh_delete_process_entry(pid_t id);
-boolean xsh_update_process_entry(pid_t id, xsh_process_entry *prc);
+boolean xsh_update_process_entry(pid_t id, state_t s, boolean fg);
 xsh_process_entry* xsh_retrieve_process_entry_by_pid(pid_t id);
 xsh_process_entry* xsh_retrieve_process_entry_by_id(int id);
 xsh_process_entry* xsh_retrieve_foreground_process();

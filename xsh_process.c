@@ -53,7 +53,7 @@ boolean xsh_delete_process_entry(pid_t id) {
 	return exists;
 }
 
-boolean xsh_update_process_entry(pid_t id, xsh_process_entry *prc) {
+boolean xsh_update_process_entry(pid_t id, state_t s, boolean f) {
 	boolean exists = FALSE;
 	xsh_process_table* current = process_table;
 	xsh_process_entry* process_to_update;
@@ -63,11 +63,16 @@ boolean xsh_update_process_entry(pid_t id, xsh_process_entry *prc) {
 			exists = TRUE;
 			break;
 		}
+		current = current->next;
+	}
+	if(current->entry.pid == id) {
+		process_to_update = &current->entry;
+		exists = TRUE;
 	}
 
 	if(exists) {
-		process_to_update->state = prc->state;
-		process_to_update->fg = prc->fg;
+		process_to_update->state = s;
+		process_to_update->fg = f;
 	}
 	return exists;
 }
@@ -84,6 +89,10 @@ xsh_process_entry* xsh_retrieve_process_entry_by_pid(pid_t id) {
 		}
 		current = current->next;
 	}
+	if(current->entry.pid == id) {
+			process_to_retrieve = &current->entry;
+			exists = TRUE;
+		}
 	if(exists) {
 		return process_to_retrieve;
 	} else {
@@ -96,13 +105,16 @@ xsh_process_entry* xsh_retrieve_process_entry_by_id(int id) {
 	xsh_process_table* current = process_table;
 	xsh_process_entry* process_to_retrieve;
 	while(current->next != NULL) {
-		printf("%d\n",current->next->entry.entry_id);
 		if(current->entry.entry_id == id) {
 			process_to_retrieve = &current->entry;
 			exists = TRUE;
 			break;
 		}
 		current = current->next;
+	}
+	if(current->entry.entry_id == id) {
+		process_to_retrieve = &current->entry;
+		exists = TRUE;
 	}
 	if(exists) {
 		return process_to_retrieve;
@@ -121,6 +133,11 @@ xsh_process_entry* xsh_retrieve_foreground_process() {
 			exists = TRUE;
 			break;
 		}
+		current = current->next;
+	}
+	if(current->entry.fg) {
+		process_to_retrieve = &current->entry;
+		exists = TRUE;
 	}
 	if(exists) {
 		return process_to_retrieve;
