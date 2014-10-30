@@ -1,0 +1,7 @@
+xsh
+*.o
+*~
+xsh_lex.c
+xsh_parse.c
+xsh_parse.h
+mod_test_crud.c
