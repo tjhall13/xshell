@@ -52,6 +52,7 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 					if(pid == 0){
 						xsh_create_process_entry(prc);
 						execv(buf, argv);
+						exit(-1);
 					}else{
 						if(background == FALSE){
 							waitpid(pid, &retval, 0);
