@@ -27,6 +27,7 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 		pDir = opendir(path);
 		if(pDir == NULL){
 			can_errno = -1; //unable to open the directory
+			continue;
 		}
 		
 		buf = (char *) malloc(strlen(path) + strlen(cmd) + 2);
