@@ -15,7 +15,8 @@ static boolean xsh_is_internal(char *cmd) {
     if(
         strcmp(cmd, "exit") == 0 ||
         strcmp(cmd, "fg") == 0   ||
-        strcmp(cmd, "bg") == 0
+        strcmp(cmd, "bg") == 0	||
+        strcmp(cmd, "cd")
     ) {
         return TRUE;
     } else {
@@ -26,6 +27,8 @@ static boolean xsh_is_internal(char *cmd) {
 static int xsh_execute_internal(char *cmd, char *argv[]) {
     if(strcmp(cmd, "exit") == 0) {
         xsh_exit();
+    } else if (strcmp(cmd, "cd") == 0) {
+    	xsh_cd();
     }
 }
 
@@ -90,4 +93,25 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean fg, char ** arg
     } else {
         return xsh_execute_external(list, cmd, fg, argv);
     }
+}
+
+int xsh_cd(char** argv) {
+   char path[200];
+   strcpy(path,argv[1]);
+
+   char *token;
+
+   char cwd[200]; 
+   if(argv[1][0] != '/')
+   {// true for the dir in cwd
+    getcwd(cwd,sizeof(cwd));
+    strcat(cwd,"/"); 
+    strcat(cwd,path);
+    chdir(cwd);
+   }else{//true for dir w.r.t. /
+    chdir(argv[1]);
+   }
+
+   return 0;
+  
 }
