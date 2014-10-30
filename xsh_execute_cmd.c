@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
+int can_errno;
+
 int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, char ** argv){
 	
 	pid_t pid;
@@ -18,15 +20,14 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 	DIR *pDir;
 	char *path = NULL;
 	char *buf = NULL;
+	can_errno = 0;
 	
 	for(ptr = list; ptr != NULL; ptr = ptr->next){
-		
-		pDir = opendir(ptr->str);
-		if(pDir == NULL){
-			return -1;
-		}
-		
 		path = ptr->str;
+		pDir = opendir(path);
+		if(pDir == NULL){
+			can_errno = -1; //unable to open the directory
+		}
 		
 		buf = (char *) malloc(strlen(path) + strlen(cmd) + 2);
 		
@@ -56,13 +57,20 @@ int xsh_execute_cmd(struct str_llist * list, char * cmd, boolean background, cha
 							xsh_delete_process_entry(getpid);
 						}
 					}
+				}else{
+					can_errno = -3; //doesn't have execution permissions
 				}
 				break;
+			}else{
+				can_errno = -2; //unknown command
 			}
 		}
 		closedir(pDir);
 		free(buf);
 	}
-	
-	return 0;
+	if(can_errno < 0){
+		return -1;
+	}else{
+		return 0;
+	}
 }
