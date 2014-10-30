@@ -69,14 +69,14 @@ static int xsh_execute_external(struct str_llist * list, char *cmd, boolean fg, 
 			        prc.fg = fg;
 			        prc.pid = getpid();
 			        
-			        xsh_create_process_entry(&prc);
+			        //xsh_create_process_entry(&prc);
 					if(pid <= 0) {
 						execv(buf, argv);
 						exit(0);
 					} else {
 					    if(fg) {
     						waitpid(pid, &retval, 0);
-    						xsh_delete_process_entry(pid);
+    						//xsh_delete_process_entry(pid);
     				    }
 					}
 				}else{
