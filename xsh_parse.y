@@ -23,7 +23,9 @@ int yylex(void);
     struct double_val  dval;
     struct int_val     ival;
     
-    struct str_llist * cmd_arg_list;
+    job_desc_t  *job;
+    task_desc_t *task;
+    proc_desc_t *proc;
 }
 
 %start input
@@ -35,9 +37,14 @@ int yylex(void);
 
 %token AMPER
 %token NEWLINE
+%token PIPE
+%token REDIRR
+%token REDIRL
 
 %type <str> param
-%type <cmd_arg_list> cmd_args
+%type <job> job
+%type <task> task;
+%type <proc> proc;
 
 %%
 
@@ -45,15 +52,21 @@ input:    cmd input
           | cmd
           ;
 
-cmd:      cmd_args NEWLINE
-                         { exec_str_llist(TRUE, $1); }
-          | cmd_args AMPER NEWLINE
-                         { exec_str_llist(FALSE, $1); }
-          | NEWLINE      { exec_str_llist(TRUE, NULL); }
+cmd:      job AMPER NEWLINE   { execute_job($1, FALSE); destroy_job($1); }
+          | job NEWLINE       { execute_job($1, TRUE); destroy_job($1); }
           ;
 
-cmd_args: param cmd_args { $$ = new_str_llist($1, $2); }
-          | param        { $$ = new_str_llist($1, NULL); }
+job:      task                { $$ = create_job_from_task($1); }
+          | task PIPE job     { $$ = pipe_task_to_job($1, $3); }
+          | job REDIRL task   { $$ = pipe_task_to_job($3, $1); }
+          ;
+
+task:     proc                { $$ = create_task_from_proc($1); }
+          | job REDIRR STRING { $$ = redr_job_to_file($1, $3); }
+          ;
+
+proc:     param proc          { $$ = new_str_llist($1, $2); }
+          | param             { $$ = new_str_llist($1, NULL); }
           ;
 
 param:    STRING        { $$ = $1; }

@@ -28,4 +28,17 @@ struct int_val {
     char *str;
 };
 
+struct str_llist {
+    char *str;
+    struct str_llist *next;
+};
+
+struct str_llist *new_str_llist(char *, struct str_llist *);
+
+void delete_str_llist(struct str_llist *);
+
+int size_str_llist(struct str_llist *);
+
+void print_str_llist(struct str_llist *);
+
 #endif
