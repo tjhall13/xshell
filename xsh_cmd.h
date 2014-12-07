@@ -41,6 +41,7 @@ typedef struct task_desc {
 typedef struct job_desc {
     job_type type;
     union {
+        proc_desc_t *proc;
         task_desc_t *task;
         struct {
             task_desc_t *task;
@@ -78,5 +79,7 @@ task_desc_t *create_task_from_proc(proc_desc_t *, redirr_llist_t *);
 
 task_desc_t *pipe_task_to_proc(task_desc_t *, proc_desc_t *, redirr_llist_t *);
 job_desc_t *pipe_job_to_task(job_desc_t *, task_desc_t *);
+
+job_desc_t *create_job_from_proc(proc_desc_t *);
 
 #endif

@@ -107,7 +107,7 @@ int xsh_execute_process(char * cmd, boolean fg, char ** argv, boolean refd, int 
 
 int xsh_wait(pid_t pid, boolean fg) {
     int status = 0;
-    pid_t state_pid = waitpid(-1, &status, WNOHANG | WUNTRACED | WCONTINUED);
+    pid_t state_pid = waitpid(pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
     int retval, sigval;
     boolean fg_running = TRUE;
     while(state_pid != 0) {

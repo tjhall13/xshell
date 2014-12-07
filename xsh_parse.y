@@ -34,7 +34,7 @@ int yylex(void);
     double		fuckmath;
 }
 
-%start temp
+%start input
 
 %token <str>    STRING
 %token <dval>   DOUBLE
@@ -67,6 +67,7 @@ int yylex(void);
 %type <str> expr
 %type <fuckmath> math
 %type <job> job
+%type <job> _job
 %type <task> task
 %type <proc> proc
 %type <redir> redirr
@@ -84,8 +85,8 @@ input:    cmd input
           | cmd
           ;
 
-cmd:      job AMPER NEWLINE   { execute_job($1, FALSE); destroy_job($1); }
-          | job NEWLINE       { execute_job($1, TRUE); destroy_job($1); }
+cmd:      job NEWLINE AMPER   { execute_job($1, FALSE); destroy_job($1); }
+          | job NEWLINE      { execute_job($1, TRUE); destroy_job($1); }
           ;
 
 redirr:     REDIRR STRING     { $$ = new_redir_to_file(1, $2, FALSE); }
@@ -97,8 +98,11 @@ redirr:     REDIRR STRING     { $$ = new_redir_to_file(1, $2, FALSE); }
 redirr_l:                     { $$ = NULL; }
           | redirr redirr_l   { $$ = new_redirr_llist($1, $2); }
           ;
-          
-job:      task                { $$ = create_job_from_task($1); }
+
+job:        proc            { $$ = create_job_from_proc($1); }
+;
+        
+_job:      task                { $$ = create_job_from_task($1); }
           | task REDIRL job   { $$ = pipe_job_to_task($3, $1); }
           ;
 

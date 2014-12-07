@@ -52,11 +52,32 @@ void print_str_llist(struct str_llist *list) {
 }
 
 void execute_job(job_desc_t *job, boolean fg) {
-    
+    if(job->type == PROC_T) {
+        struct str_llist *ptr = job->job.proc;
+        int size = size_str_llist(ptr);
+        char *cmd[size];
+        int i;
+        for(i = 0; i < size; i++) {
+            cmd[i] = strdup(ptr->str);
+            ptr = ptr->next;
+        }
+        int _stdin[2];
+        int _stdout[2];
+        int _stderr[2];
+        _stdin[0] = fileno(stdin);
+        _stdin[1] = fileno(stdin);
+        _stdout[0] = fileno(stdout);
+        _stdout[1] = fileno(stdout);
+        _stderr[0] = fileno(stderr);
+        _stderr[1] = fileno(stderr);
+        
+        pid_t pid = xsh_execute_process(cmd[0], fg, cmd, FALSE, _stdin, _stdout, _stderr);
+        xsh_wait(pid, fg);
+    }
 }
 
 void destroy_job(job_desc_t *job) {
-    
+    fflush(stdout);
 }
 
 redirr_llist_t *new_redirr_llist(redir_desc_t *redir, redirr_llist_t *next) {
@@ -142,11 +163,45 @@ job_desc_t *pipe_job_to_task(job_desc_t *job, task_desc_t *task) {
     return ptr;
 }
 
-job_desc_t *redir_output_to_fd(job_desc_t *job, redir_desc_t *redir) {
+task_desc_t *pipe_task_to_proc(task_desc_t *task, proc_desc_t *proc, redirr_llist_t *redir_l) {
+    task_desc_t *ptr = (task_desc_t *) malloc(sizeof(task_desc_t));
+    ptr->type = PIPE;
+    ptr->task.pipe.task = task;
+    ptr->task.pipe.proc = proc;
     
+    redirr_llist_t *redir_ptr;
+    redir_desc_t *redir;
+    for(redir_ptr = redir_l; redir_ptr != NULL; redir_ptr = redir_ptr->next) {
+        redir = redir_ptr->redir;
+        
+        int fromfd;
+        switch(redir->fromfd) {
+            case 0:
+                fromfd = fileno(ptr->io._stdin);
+                break;
+            case 1:
+                fromfd = fileno(ptr->io._stdout);
+                break;
+            case 2:
+                fromfd = fileno(ptr->io._stderr);
+                break;
+            default:
+                fromfd = -1;
+                break;
+        }
+        
+        int tofd = redir->tofd;
+        if(fromfd != -1 && tofd != -1) {
+            dup2(tofd, fromfd);
+        }
+    }
+    
+    return ptr;
 }
 
-task_desc_t *pipe_task_to_proc(task_desc_t *task, proc_desc_t *proc, redirr_llist_t *redirr_l) {
-    
-    return task;
+job_desc_t *create_job_from_proc(proc_desc_t *proc) {
+    job_desc_t *ptr = (job_desc_t *) malloc(sizeof(job_desc_t));
+    ptr->job.proc = proc;
+    ptr->type = PROC_T;
+    return ptr;
 }

@@ -5,6 +5,12 @@
 struct xsh_cntxt sh_ctx;
 
 int main(int argc, char **argv) {
+    if(argc > 1) {
+        char *filename = argv[1];
+        FILE *file = fopen(filename, "r");
+        sh_ctx.input = file;
+    }
+    
     xsh_init(&sh_ctx);
     
     while(sh_ctx.accept_cmd) {
