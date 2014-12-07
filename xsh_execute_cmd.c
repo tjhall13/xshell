@@ -1,11 +1,7 @@
 #include <xsh.h>
 #include <xsh_cmd.h>
-<<<<<<< Updated upstream
-#include <dirent.h>
-=======
 #include <xsh_process.h>
 
->>>>>>> Stashed changes
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -22,13 +18,9 @@ static boolean xsh_is_internal(char *cmd) {
     if(
         strcmp(cmd, "exit") == 0 ||
         strcmp(cmd, "fg") == 0   ||
-<<<<<<< Updated upstream
-        strcmp(cmd, "bg") == 0
-=======
         strcmp(cmd, "bg") == 0   ||
         strcmp(cmd, "jobs") == 0 ||
         strcmp(cmd, "cd") == 0
->>>>>>> Stashed changes
     ) {
         return TRUE;
     } else {
@@ -39,63 +31,13 @@ static boolean xsh_is_internal(char *cmd) {
 static int xsh_execute_internal(char *cmd, char *argv[]) {
     if(strcmp(cmd, "exit") == 0) {
         xsh_exit();
-<<<<<<< Updated upstream
-=======
     } else if(strcmp(cmd, "jobs") == 0) {
         xsh_jobs();
     } else if(strcmp(cmd, "cd") == 0) {
         xsh_cd(argv);
->>>>>>> Stashed changes
     }
 }
 
-<<<<<<< Updated upstream
-static int xsh_execute_external(struct str_llist * list, char *cmd, boolean fg, char *argv[]) {
-	pid_t pid;
-	int retval;
-	struct str_llist * ptr = NULL;
-	for(ptr = list; ptr != NULL; ptr = ptr->next){
-		struct stat sb;
-		struct dirent *pDirent;
-		DIR *pDir;
-		
-		pDir = opendir(ptr->str);
-		if(pDir == NULL){
-			return -1;
-		}
-		
-		char *path = ptr->str;
-		char *buf = (char *) malloc(strlen(path) + strlen(cmd) + 2);
-		buf[0] = '\0';
-		buf = strcat(buf, path);
-		if(buf[strlen(buf) - 1] != '/') {
-		    buf = strcat(buf, "/");
-		}
-		
-		while((pDirent = readdir(pDir)) != NULL) {
-		    if(strcmp(pDirent->d_name, cmd) == 0) {
-		        buf = strcat(buf, cmd);
-			    if(stat(buf, &sb) == 0 && sb.st_mode & S_IXUSR) {
-					pid = fork();
-					if(pid <= 0) {
-						execv(buf, argv);
-						exit(0);
-					} else {
-					    if(fg) {
-    						waitpid(pid, &retval, 0);
-    				    }
-					}
-				}else{
-					closedir (pDir);
-					break;
-				}
-			}
-		}
-		
-		free(buf);
-	}
-	return 0;
-=======
 static int xsh_execute_external(char *cmd, char *argv[]) {
     // execute cmd searching in $PATH with argv
     execvp(cmd, argv);
@@ -113,7 +55,6 @@ static int xsh_execute_external(char *cmd, char *argv[]) {
         break;
     }
     return -1;
->>>>>>> Stashed changes
 }
 
 // command, foreground, array of parameters

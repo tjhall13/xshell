@@ -5,7 +5,7 @@
 
 int xsh_interpret(struct xsh_cntxt *);
 
-int xsh_execute_process(char *cmd, boolean fg, char *argv[], boolean refd, int proc_stdin, int proc_stdout, int proc_stderr);
+int xsh_execute_process(char *cmd, boolean fg, char *argv[], boolean refd, int proc_stdin[2], int proc_stdout[2], int proc_stderr[2]);
 
 typedef enum {
     PROC_T,

@@ -51,6 +51,14 @@ void print_str_llist(struct str_llist *list) {
     }
 }
 
+void execute_job(job_desc_t *job, boolean fg) {
+    
+}
+
+void destroy_job(job_desc_t *job) {
+    
+}
+
 redirr_llist_t *new_redirr_llist(redir_desc_t *redir, redirr_llist_t *next) {
     redirr_llist_t *ptr = (redirr_llist_t *) malloc(sizeof(redirr_llist_t));
     ptr->redir = redir;
@@ -68,47 +76,6 @@ redir_desc_t *new_redir_to_fd(int fromfd, int tofd) {
     redir->fromfd = fromfd;
     redir->tofd = tofd;
     return redir;
-}
-
-static void destroy_proc(proc_desc_t *proc) {
-    delete_str_llist(proc);
-}
-
-static void destroy_task(task_desc_t *task) {
-    if(task == NULL) {
-        return;
-    }
-    switch(task->type) {
-    case PROC_T:
-        destroy_proc(task->task.proc);
-        break;
-    case REDIRR_T:
-        destroy_job(task->task.redirr.job);
-        free(task->task.redirr.filename);
-        break;
-    default:
-        break;
-    }
-    free(task);
-}
-
-
-void destroy_job(job_desc_t *job) {
-    if(job == NULL) {
-        return;
-    }
-    switch(job->type) {
-    case TASK_T:
-        destroy_task(job->job.task);
-        break;
-    case PIPE_T:
-        destroy_task(job->job.pipe.task);
-        destroy_job(job->job.pipe.job);
-        break;
-    default:
-        break;
-    }
-    free(job);
 }
 
 job_desc_t *create_job_from_task(task_desc_t *task) {
@@ -130,18 +97,17 @@ task_desc_t *create_task_from_proc(proc_desc_t *proc, redirr_llist_t *redir_l) {
     redir_desc_t *redir;
     for(redir_ptr = redir_l; redir_ptr != NULL; redir_ptr = redir_ptr->next) {
         redir = redir_ptr->redir;
-        pipe(fd);
         
         int fromfd;
         switch(redir->fromfd) {
             case 0:
-                fromfd = fileno(ptr->io->_stdin);
+                fromfd = fileno(ptr->io._stdin);
                 break;
             case 1:
-                fromfd = fileno(ptr->io->_stdout);
+                fromfd = fileno(ptr->io._stdout);
                 break;
             case 2:
-                fromfd = fileno(ptr->io->_stderr);
+                fromfd = fileno(ptr->io._stderr);
                 break;
             default:
                 fromfd = -1;
@@ -149,29 +115,26 @@ task_desc_t *create_task_from_proc(proc_desc_t *proc, redirr_llist_t *redir_l) {
         }
         
         int tofd = redir->tofd;
-        
         if(fromfd != -1 && tofd != -1) {
-            int fd[2];
-            pipe(fd);
-            
-            dup2(fd[0], redir->fromfd);
-            dup2(fd[1], redir->tofd);
+            dup2(tofd, fromfd);
         }
     }
     
     return ptr;
 }
 
-job_desc_t *pipe_job_to_task(task_desc_t *task, job_desc_t *job) {
+job_desc_t *pipe_job_to_task(job_desc_t *job, task_desc_t *task) {
     job_desc_t *ptr = (job_desc_t *) malloc(sizeof(job_desc_t));
     ptr->type = PIPE_T;
-    ptr->job.redirl.job  = job;
-    ptr->job.redirl.task = task;
+    ptr->job.pipe.job  = job;
+    ptr->job.pipe.task = task;
     
     int fd[2];
     pipe(fd);
     dup2(fd[0], task->io._stdin);
+    int temp = fileno(job->io._stdout);
     dup2(fd[1], job->io._stdout);
+    close(temp);
     
     ptr->io._stderr = stderr;
     ptr->io._stdout = stdout;
@@ -181,4 +144,9 @@ job_desc_t *pipe_job_to_task(task_desc_t *task, job_desc_t *job) {
 
 job_desc_t *redir_output_to_fd(job_desc_t *job, redir_desc_t *redir) {
     
+}
+
+task_desc_t *pipe_task_to_proc(task_desc_t *task, proc_desc_t *proc, redirr_llist_t *redirr_l) {
+    
+    return task;
 }
