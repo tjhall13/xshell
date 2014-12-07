@@ -37,6 +37,18 @@ intappend   {fd}{append}
 
 comment     ^\#.*
 
+plus		"+"
+minus		"-"
+multiply	"*"
+divide		"/"
+
+dolladollabill 	"$"
+dlbrace			"{{"
+drbrace			"}}"
+lpar			"("
+rpar			")"
+pow				"^"
+
 %%
 
 {dquote_str} { yylval.str = strdup(yytext); return STRING; }
@@ -52,6 +64,18 @@ comment     ^\#.*
 {verticalbar} { return PIPE; }
 {greaterthan} { return REDIRR; }
 {lessthan}  { return REDIRL; }
+
+{plus}		{return PLUS;}
+{minus}		{return MINUS;}
+{multiply}	{return MULTIPLY;}
+{divide}	{return DIVIDE;}
+
+{dolladollabill}	{return DOLLAR;}
+{drbrace}			{return DRBRACE;}
+{dlbrace}			{return DLBRACE;}
+{lpar}				{return LPAR;}
+{rpar}				{return RPAR;}
+{pow}				{return POW;}
 
 {double}    { sscanf(yytext, "%lf", &yylval.dval.dval); yylval.dval.str = strdup(yytext); return DOUBLE; }
 

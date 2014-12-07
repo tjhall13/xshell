@@ -1,13 +1,14 @@
 CC = gcc
 CFLAGS = -I .
 LD = gcc
+LFLAGS = 
 
 OBJS = xsh_parse.o xsh_lex.o xsh_main.o xsh_cmd.o xsh_manager.o xsh_execute_cmd.o
 
 all: xsh
 
 xsh: $(OBJS)
-	$(LD) $^ -o $@
+	$(LD) $(LFLAGS) $^ -o $@ -lm
 
 .c.o:
 	$(CC) $(CFLAGS) $^ -c

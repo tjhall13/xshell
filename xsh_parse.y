@@ -4,6 +4,7 @@
 #include <xsh_cmd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 extern FILE *yyin;
 
@@ -30,9 +31,10 @@ int yylex(void);
     redirr_llist_t *redir_l;
     
     int         fd;
+    double		fuckmath;
 }
 
-%start input
+%start temp
 
 %token <str>    STRING
 %token <dval>   DOUBLE
@@ -51,13 +53,30 @@ int yylex(void);
 %token PIPE
 %token REDIRR
 %token REDIRL
+%token PLUS
+%token MINUS
+%token MULITPLY
+%token DIVIDE
+%token DOLLAR
+%token DLBRACE
+%token DRBRACE
+%token LPAR
+%token RPAR
+%token POW
 
 %type <str> expr
+%type <fuckmath> math
 %type <job> job
 %type <task> task
 %type <proc> proc
 %type <redir> redirr
 %type <redir_l> redirr_l
+
+%left PLUS
+%left MINUS
+%left MULTIPLY
+%left DIVIDE
+%right POW
 
 %%
 
@@ -90,11 +109,22 @@ task:     proc redirr_l         { $$ = create_task_from_proc($1, $2); }
 proc:     expr proc          { $$ = new_str_llist($1, $2); }
           | expr             { $$ = new_str_llist($1, NULL); }
           ;
+          
+math:	  math PLUS math			{$$ = $1 + $3;}
+		 |math MINUS math			{$$ = $1 - $3;}
+		 |math MULTIPLY math		{$$ = $1 * $3;}
+		 |math DIVIDE math			{$$ = $1 / $3;}
+		 |math POW math				{$$ = pow($1, $3);}
+		 |MINUS math %prec MINUS	{$$ = -$2;}
+		 |LPAR math RPAR			{$$ = $2;}
+		 |expr						{double val; sscanf($1, "%lf", &val); $$ = val;} 
+		 ;
 
 expr:     STRING        { $$ = $1; }
           | DOUBLE      { $$ = strdup($1.str); }
           | INTEGER     { $$ = strdup($1.str); }
           | VARIABLE    { $$ = getenv($1); $$ = ( $$ ? $$ : "" ); $$ = strdup($$); }
+          | DOLLAR DLBRACE math DRBRACE	{$$ = malloc(64); sprintf($$, "%lf", $3);}
           ;
 
 %%
