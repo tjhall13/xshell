@@ -51,23 +51,23 @@ void print_str_llist(struct str_llist *list) {
     }
 }
 
-void execute_task(task_desc_t *task, boolean fg, boolean refd, int write_fd, int read_fd) {
-    if(task->type == PROC_T) {
-        execute_proc(task->task.proc, refd, write_fd, read_fd);
-    } else if(task->type == REDIRR_T) {
-        execute_job(task->task.redirr.job, write_fd, read_fd);
-    }
+redirr_llist_t *new_redirr_llist(redir_desc_t *redir, redirr_llist_t *next) {
+    redirr_llist_t *ptr = (redirr_llist_t *) malloc(sizeof(redirr_llist_t));
+    ptr->redir = redir;
+    ptr->next = next;
+    return ptr;
 }
 
-void execute_job(job_desc_t *job, boolean fg, boolean refd, int write_fd, int read_fd) {
-    if(job->type == PIPE_T) {
-        int pipe_fd[2];
-        pipe(pipe_fd);
-        execute_task(job->job.pipe.task, fg, TRUE, pipe_fd[0], pipe_fd[1]);
-        execute_job(job->job.pipe.job, fg);
-    } else if(job->type == TASK_T) {
-        execute_task(job->job.task, fg, refd, write_fd, read_fd);
-    }
+redir_desc_t *new_redir_to_file(int fd, char *file, boolean append) {
+    FILE *f = fopen(file, append ? "a" : "w");
+    return new_redir_to_fd(fd, fileno(f));
+}
+
+redir_desc_t *new_redir_to_fd(int fromfd, int tofd) {
+    redir_desc_t *redir = (redir_desc_t *) malloc(sizeof(redir_desc_t));
+    redir->fromfd = fromfd;
+    redir->tofd = tofd;
+    return redir;
 }
 
 static void destroy_proc(proc_desc_t *proc) {
@@ -115,28 +115,70 @@ job_desc_t *create_job_from_task(task_desc_t *task) {
     job_desc_t *ptr = (job_desc_t *) malloc(sizeof(job_desc_t));
     ptr->type = TASK_T;
     ptr->job.task = task;
+    ptr->io._stderr = task->io._stderr;
+    ptr->io._stdout = task->io._stdout;
+    ptr->io._stdin = task->io._stdin;
     return ptr;
 }
 
-task_desc_t *create_task_from_proc(proc_desc_t *proc) {
+task_desc_t *create_task_from_proc(proc_desc_t *proc, redirr_llist_t *redir_l) {
     task_desc_t *ptr = (task_desc_t *) malloc(sizeof(task_desc_t));
     ptr->type = PROC_T;
     ptr->task.proc = proc;
+    
+    redirr_llist_t *redir_ptr;
+    redir_desc_t *redir;
+    for(redir_ptr = redir_l; redir_ptr != NULL; redir_ptr = redir_ptr->next) {
+        redir = redir_ptr->redir;
+        pipe(fd);
+        
+        int fromfd;
+        switch(redir->fromfd) {
+            case 0:
+                fromfd = fileno(ptr->io->_stdin);
+                break;
+            case 1:
+                fromfd = fileno(ptr->io->_stdout);
+                break;
+            case 2:
+                fromfd = fileno(ptr->io->_stderr);
+                break;
+            default:
+                fromfd = -1;
+                break;
+        }
+        
+        int tofd = redir->tofd;
+        
+        if(fromfd != -1 && tofd != -1) {
+            int fd[2];
+            pipe(fd);
+            
+            dup2(fd[0], redir->fromfd);
+            dup2(fd[1], redir->tofd);
+        }
+    }
+    
     return ptr;
 }
 
-job_desc_t *pipe_task_to_job(task_desc_t *task, job_desc_t *job) {
+job_desc_t *pipe_job_to_task(task_desc_t *task, job_desc_t *job) {
     job_desc_t *ptr = (job_desc_t *) malloc(sizeof(job_desc_t));
     ptr->type = PIPE_T;
-    ptr->job.pipe.job  = job;
-    ptr->job.pipe.task = task;
+    ptr->job.redirl.job  = job;
+    ptr->job.redirl.task = task;
+    
+    int fd[2];
+    pipe(fd);
+    dup2(fd[0], task->io._stdin);
+    dup2(fd[1], job->io._stdout);
+    
+    ptr->io._stderr = stderr;
+    ptr->io._stdout = stdout;
+    ptr->io._stdin = stdin;
     return ptr;
 }
 
-task_desc_t *redr_job_to_file(job_desc_t *job, char *filename) {
-    task_desc_t *ptr = (task_desc_t *) malloc(sizeof(task_desc_t));
-    ptr->type = REDIRR_T;
-    ptr->task.redirr.job      = job;
-    ptr->task.redirr.filename = filename;
-    return ptr;
+job_desc_t *redir_output_to_fd(job_desc_t *job, redir_desc_t *redir) {
+    
 }

@@ -11,60 +11,60 @@ int yyerror(char const *);
 %option noyywrap
 
 amper       [&]
-<<<<<<< Updated upstream
-char        [a-zA-Z\-_]
-=======
 lessthan    [<]
 greaterthan [>]
 verticalbar [|]
 backslash   [\]
 char        [\.\/a-zA-Z\-_]
->>>>>>> Stashed changes
 digit       [0-9]
 
 double      {digit}*\.{digit}+
 integer     {digit}+
 
-<<<<<<< Updated upstream
-string      {char}({char}|{digit})*
-=======
 string      ({digit}|{char})*{char}({digit}|{char})*
 
 dquote_str  \".*\"
 squote_str  \'.*\'
->>>>>>> Stashed changes
 
 variable    \${char}+
+
+fd          [1-2]
+
+append      {amper}{amper}
+ampint      {amper}{fd}
+intred      {fd}{greaterthan}
+intappend   {fd}{append}
 
 comment     ^\#.*
 
 %%
 
-{string}    { yylval.str = strdup(yytext); return STRING; }
-
-<<<<<<< Updated upstream
-{amper}     { yylval.cntrl = '&'; return AMPER; }
-=======
 {dquote_str} { yylval.str = strdup(yytext); return STRING; }
 
 {squote_str} { yylval.str = strdup(yytext); return STRING; }
+
+{intappend} { yytext[1] = 0; yylval.fd = atoi(yytext); return INTAPPEND; }
+{intred}    { yytext[1] = 0; yylval.fd = atoi(yytext); return INTRED; }
+{ampint}    { yylval.fd = atoi(yytext + 1); return AMPINT; }
+{append}    { return APPEND; }
 
 {amper}     { return AMPER; }
 {verticalbar} { return PIPE; }
 {greaterthan} { return REDIRR; }
 {lessthan}  { return REDIRL; }
->>>>>>> Stashed changes
 
-{double}    { sscanf(yytext, "%lf", &yylval.dval.dval); yylval.dval.str = yytext; return DOUBLE; }
+{double}    { sscanf(yytext, "%lf", &yylval.dval.dval); yylval.dval.str = strdup(yytext); return DOUBLE; }
 
-{integer}   { sscanf(yytext, "%d", &yylval.ival.ival); yylval.ival.str = yytext; return INTEGER; }
+{integer}   { sscanf(yytext, "%d", &yylval.ival.ival); yylval.ival.str = strdup(yytext); return INTEGER; }
+
+{string}    { yylval.str = strdup(yytext); return STRING; }
 
 {variable}  { yylval.str = yytext + 1; return VARIABLE; }
 
 [ \t]       { }
 
-[\n\c]      { return NEWLINE; }
+[\n]      { return NEWLINE; }
 
-{comment}   { printf("comment"); }
+{comment}   { }
 
 .           { yyerror("unknown char"); }
