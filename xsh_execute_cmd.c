@@ -30,6 +30,7 @@ static boolean xsh_is_internal(char *cmd) {
 
 static int xsh_execute_internal(char *cmd, char *argv[]) {
     if(strcmp(cmd, "exit") == 0) {
+        printf("exit\n");
         xsh_exit();
     } else if(strcmp(cmd, "jobs") == 0) {
         xsh_jobs();

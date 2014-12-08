@@ -23,7 +23,6 @@ int xsh_init(struct xsh_cntxt *ctx) {
     sh_ctx = ctx;
     
     ctx->accept_cmd = 1;
-    ctx->input = stdin;
     
     yyin = ctx->input;
     
@@ -33,6 +32,5 @@ int xsh_init(struct xsh_cntxt *ctx) {
 }
 
 int xsh_exit() {
-    printf("exit\n");
     exit(0);
 }

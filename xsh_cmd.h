@@ -3,7 +3,7 @@
 
 #include <xsh.h>
 
-#define PROMPT() printf("xsh :-) ");
+void prompt();
 
 int xsh_interpret(struct xsh_cntxt *);
 

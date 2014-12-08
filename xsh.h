@@ -11,6 +11,7 @@ typedef enum {
 struct xsh_cntxt {
     FILE *input;
     int accept_cmd;
+    boolean script;
 };
 
 extern FILE *yyin;

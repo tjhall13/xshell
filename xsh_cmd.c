@@ -6,8 +6,17 @@
 #include <stdio.h>
 #include <string.h>
 
+struct xsh_cntxt *sh_ctx;
+
+void prompt() {
+    if(sh_ctx->script == FALSE) {
+        printf("xsh :-) ");
+    }
+}
+
 int xsh_interpret(struct xsh_cntxt *ctx) {
-    PROMPT();
+    sh_ctx = ctx;
+    prompt();
     yyparse();
     return 0;
 }
@@ -86,7 +95,7 @@ void execute_job(job_desc_t *job, boolean fg) {
     }
     xsh_wait(pid, fg);
     
-    PROMPT();
+    prompt();
 }
 
 void destroy_job(job_desc_t *job) {

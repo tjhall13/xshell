@@ -88,7 +88,7 @@ input:    cmd input
 
 cmd:      job AMPER NEWLINE   { execute_job($1, FALSE); destroy_job($1); }
           | job NEWLINE       { execute_job($1, TRUE); destroy_job($1); }
-          | NEWLINE           { PROMPT(); }
+          | NEWLINE           { prompt(); }
           ;
 
 redir:      REDIRR STRING     { $$ = new_redir_to_file(1, $2, FALSE); }

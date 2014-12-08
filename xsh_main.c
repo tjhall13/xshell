@@ -9,13 +9,14 @@ int main(int argc, char **argv) {
         char *filename = argv[1];
         FILE *file = fopen(filename, "r");
         sh_ctx.input = file;
+        sh_ctx.script = TRUE;
+    } else {
+        sh_ctx.input = stdin;
     }
     
     xsh_init(&sh_ctx);
     
-    while(sh_ctx.accept_cmd) {
-        xsh_interpret(&sh_ctx);
-    }
+    xsh_interpret(&sh_ctx);
     
     return xsh_exit(&sh_ctx);
 }
