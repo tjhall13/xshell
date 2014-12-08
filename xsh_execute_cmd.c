@@ -58,10 +58,10 @@ static int xsh_execute_external(char *cmd, char *argv[]) {
 }
 
 // command, foreground, array of parameters
-int xsh_execute_process(char * cmd, boolean fg, char ** argv, boolean refd, int proc_stdin[2], int proc_stdout[2], int proc_stderr[2]) {
+int xsh_execute_process(char * cmd, boolean fg, char ** argv, int proc_stdin[2], int proc_stdout[2], int proc_stderr[2]) {
     /* If is a foreground process, is an internal command and file descriptors do not need to be managed, execute internal command on this process
     */
-    if(fg && xsh_is_internal(cmd) && !refd) {
+    if(fg && xsh_is_internal(cmd)) {
         int retval = xsh_execute_internal(cmd, argv);
         
         return retval;
@@ -69,23 +69,6 @@ int xsh_execute_process(char * cmd, boolean fg, char ** argv, boolean refd, int 
         pid_t pid = fork();
         if(pid == 0) {
             
-            if(refd) {
-                // close writing end of pipe
-                if(fcntl(proc_stdin[0], F_GETFD) != -1) {
-                    close(proc_stdin[0]);
-                }
-                if(fcntl(proc_stdout[1], F_GETFD) != -1) {
-                    close(proc_stdout[1]);
-                }
-                if(fcntl(proc_stderr[1], F_GETFD) != -1) {
-                    close(proc_stderr[1]);
-                }
-                
-                // set stdin/stdout/stderr to the new values
-                dup2(proc_stdin[1], fileno(stdin));
-                dup2(proc_stdout[0], fileno(stdout));
-                dup2(proc_stderr[0], fileno(stderr));
-            }
             
             if(xsh_is_internal(cmd)) {
                 xsh_execute_internal(cmd, argv);
@@ -107,7 +90,7 @@ int xsh_execute_process(char * cmd, boolean fg, char ** argv, boolean refd, int 
 
 int xsh_wait(pid_t pid, boolean fg) {
     int status = 0;
-    pid_t state_pid = waitpid(pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
+    pid_t state_pid = waitpid(-1, &status, WNOHANG | WUNTRACED | WCONTINUED);
     int retval, sigval;
     boolean fg_running = TRUE;
     while(state_pid != 0) {
@@ -143,6 +126,7 @@ int xsh_wait(pid_t pid, boolean fg) {
             
         #endif
         }
+        state_pid = waitpid(-1, &status, WNOHANG | WUNTRACED | WCONTINUED);
     }
     
     if(fg && fg_running) {

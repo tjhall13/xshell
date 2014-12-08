@@ -25,10 +25,11 @@ int yylex(void);
     struct int_val     ival;
     
     job_desc_t  *job;
+    pgrp_desc_t *pgrp;
     task_desc_t *task;
     proc_desc_t *proc;
     redir_desc_t *redir;
-    redirr_llist_t *redir_l;
+    redir_llist_t *redir_l;
     
     int         fd;
     double		fuckmath;
@@ -67,11 +68,11 @@ int yylex(void);
 %type <str> expr
 %type <fuckmath> math
 %type <job> job
-%type <job> _job
+%type <pgrp> pgrp
 %type <task> task
 %type <proc> proc
-%type <redir> redirr
-%type <redir_l> redirr_l
+%type <redir> redir
+%type <redir_l> redir_l
 
 %left PLUS
 %left MINUS
@@ -82,36 +83,37 @@ int yylex(void);
 %%
 
 input:    cmd input
-          | cmd
+          |
           ;
 
-cmd:      job NEWLINE AMPER   { execute_job($1, FALSE); destroy_job($1); }
-          | job NEWLINE      { execute_job($1, TRUE); destroy_job($1); }
+cmd:      job AMPER NEWLINE   { execute_job($1, FALSE); destroy_job($1); }
+          | job NEWLINE       { execute_job($1, TRUE); destroy_job($1); }
+          | NEWLINE           { PROMPT(); }
           ;
 
-redirr:     REDIRR STRING     { $$ = new_redir_to_file(1, $2, FALSE); }
+redir:      REDIRR STRING     { $$ = new_redir_to_file(1, $2, FALSE); }
           | INTRED STRING     { $$ = new_redir_to_file($1, $2, FALSE); }
           | INTAPPEND STRING  { $$ = new_redir_to_file($1, $2, TRUE); }
           | INTRED AMPINT     { $$ = new_redir_to_fd($1, $2); }
           ;
           
-redirr_l:                     { $$ = NULL; }
-          | redirr redirr_l   { $$ = new_redirr_llist($1, $2); }
+redir_l:                      { $$ = NULL; }
+          | redir redir_l     { $$ = new_redir_llist($1, $2); }
           ;
 
-job:        proc            { $$ = create_job_from_proc($1); }
-;
-        
-_job:      task                { $$ = create_job_from_task($1); }
-          | task REDIRL job   { $$ = pipe_job_to_task($3, $1); }
+job:        pgrp REDIRL job   { $$ = pipe_job_to_pgrp($3, $1); }
+          | pgrp              { $$ = create_job_from_pgrp($1); }
           ;
 
-task:     proc redirr_l         { $$ = create_task_from_proc($1, $2); }
-          | task PIPE proc redirr_l  { $$ = pipe_task_to_proc($1, $3, $4); }
+pgrp:       task PIPE pgrp    { $$ = pipe_task_to_pgrp($1, $3); }
+          | task              { $$ = create_pgrp_from_task($1); }
           ;
 
-proc:     expr proc          { $$ = new_str_llist($1, $2); }
-          | expr             { $$ = new_str_llist($1, NULL); }
+task:       proc redir_l      { $$ = create_task_from_proc($1, $2); }
+          ;
+
+proc:     expr proc           { $$ = new_str_llist($1, $2); }
+          | expr              { $$ = new_str_llist($1, NULL); }
           ;
           
 math:	  math PLUS math			{$$ = $1 + $3;}
